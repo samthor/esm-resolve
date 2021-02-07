@@ -6,7 +6,7 @@ It's also more permissive towards error cases and the default behavior of TypeSc
 
 ## Usage
 
-Import and install "esm-resolver" via your favourite package manager.
+Install and import "esm-resolve" via your favourite package manager.
 Create a resolver based on the importing file.
 
 ```js
@@ -18,7 +18,7 @@ r('./relative');             // e.g., './relative.js'
 r('foo-test-package-name');  // e.g., './node_modules/foo-test-package-name/index.js'
 ```
 
-Resolution logic is actually the same for any files in the same directory, so they can be reused.
+Resolution logic is actually the same for any files in the same directory, so resolver objects can be reused (and they have a small bit of cache).
 
 ### Options
 
