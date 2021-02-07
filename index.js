@@ -31,6 +31,7 @@ const defaults = {
   rewritePeerTypes: true,
   allowExportFallback: true,
   matchNakedMjs: false,
+  includeMainFallback: true,
 };
 
 
@@ -55,13 +56,12 @@ const zeroJsDefinitionsImport = 'data:text/javascript;charset=utf-8,/* was .d.ts
 /**
  * Search these fields for a potential legacy main module if a top-level package is imported.
  */
-const defaultPackageMain = [
+const modulePackageNames = [
   'module',
   'esnext:main',
   'esnext',
   'jsnext:main',
   'jsnext',
-  'main',
 ];
 
 
@@ -243,12 +243,22 @@ class Resolver {
 
     // Check a few legacy options and fall back to allowing any path within the package.
     let simple = rest;
-    if (rest === '.') {
-      for (const key of defaultPackageMain) {
+    if (simple === '.') {
+      let found = false;
+      for (const key of modulePackageNames) {
         if (typeof info[key] === 'string') {
           simple = /** @type {string} */ (info[key]);
+          found = true;
           break;
         }
+      }
+
+      // If we can't find a name which implies a module import, optionally fall back to 'main' even
+      // if the type of the package isn't correct.
+      if (!found &&
+          (this.#options.includeMainFallback || info['type'] === 'module') &&
+          typeof info['main'] === 'string') {
+        simple = info['main'];
       }
     }
     return `file://${path.join(resolved, simple)}`;

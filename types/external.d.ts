@@ -60,6 +60,12 @@ export interface ResolverOptions {
   allowExportFallback: boolean,
 
   /**
+   * If legacy resolution is being performed (i.e., no `exports` field), should this resolve a
+   * main field even if the package type is not "module". Defaults to true.
+   */
+  includeMainFallback: boolean,
+
+  /**
    * Whether to search for a match suffixed with '.mjs' when a naked resolution is found. Defaults
    * to false.
    *
