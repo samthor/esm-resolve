@@ -73,13 +73,13 @@ class Resolver {
   #options;
 
   /**
-   * @param {string} importerDir
+   * @param {string} importer
    * @param {Partial<types.ResolverOptions>=} options
    */
-  constructor(importerDir, options) {
+  constructor(importer, options) {
     this.#options = Object.assign({}, defaults, options);
 
-    importerDir = path.join(path.resolve(importerDir), path.sep);
+    const importerDir = path.join(path.resolve(importer), '..', path.sep);
 
     this.#importerDir = new URL(`file://${importerDir}`);
     this.#require = createRequire(importerDir);

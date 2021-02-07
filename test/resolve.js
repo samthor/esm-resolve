@@ -19,8 +19,8 @@ import * as fs from 'fs';
 
 import buildResolver from '../index.js';
 
-const r = buildResolver('./testdata');
-const nodeResolver = buildResolver('./testdata', {constraints: ['node']});
+const r = buildResolver('./testdata/fake.js');
+const nodeResolver = buildResolver('./testdata/fake.js', {constraints: ['node']});
 
 const {pathname: packageJSONPath} = new URL('../testdata/package.json', import.meta.url);
 /** @type {string} */
