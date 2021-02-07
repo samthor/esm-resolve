@@ -1,5 +1,4 @@
 .github/
-types/index.*
 test/*
 testdata/*
 tsconfig.json
