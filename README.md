@@ -22,4 +22,4 @@ Resolution logic is actually the same for any files in the same directory, so th
 
 ### Options
 
-You can [set options](./blob/types/external.d.ts) via the second argument.
+You can [set options](./types/external.d.ts) via the second argument.
