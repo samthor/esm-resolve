@@ -20,6 +20,11 @@ r('foo-test-package-name');  // e.g., './node_modules/foo-test-package-name/inde
 
 Resolution logic is actually the same for any files in the same directory, so resolver objects can be reused (and they have a small bit of cache).
 
-### Options
+## Notes
 
-You can [set options](./types/external.d.ts) via the second argument.
+This implements modern Node resolution, i.e., [subpath exports](https://nodejs.org/api/packages.html#packages_subpath_exports) and [conditional exports](https://nodejs.org/api/packages.html#packages_conditional_exports).
+By default, it will rewrite to the "browser", "import" or "default" keys (not "node", as this is for your browser).
+
+It's permissive, falling back to real paths if exports aren't defined, and will remove imports that point purely to ".d.ts" files (you don't need to create [peer JS](https://whistlr.info/2021/check-js-with-ts/#import-your-types)).
+
+You can [set these options](./types/external.d.ts) via the second argument.

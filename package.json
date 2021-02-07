@@ -1,6 +1,6 @@
 {
   "name": "esm-resolve",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Resolves ESM imports in JS",
   "main": "index.js",
   "exports": {
@@ -13,7 +13,8 @@
     "test": "ava"
   },
   "author": "Sam Thorogood <sam.thorogood@gmail.com>",
-  "license": "Apache-2.0",
+  "repository": "git@github.com:samthor/esm-resolve.git",
+  "license": "Apache-2",
   "devDependencies": {
     "@types/node": "^14.14.25",
     "ava": "^3.15.0"
