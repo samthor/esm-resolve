@@ -2,7 +2,7 @@
 
 An ESM import resolver for Node written in pure JS.
 This is written to be part of an [ESM dev server](https://github.com/samthor/dhost) or build process, as Node's import process is impossible to introspect.
-It's also more permissive towards error cases and the default behavior of TypeScript (and therefore VSCode).
+It also allows some cases which would otherwise be failures.
 
 ## Usage
 
@@ -25,6 +25,7 @@ Resolution logic is actually the same for any files in the same directory, so re
 This implements modern Node resolution, i.e., [subpath exports](https://nodejs.org/api/packages.html#packages_subpath_exports) and [conditional exports](https://nodejs.org/api/packages.html#packages_conditional_exports).
 By default, it will rewrite to the "browser", "import" or "default" keys (not "node", as this is for your browser).
 
-It's permissive, falling back to real paths if exports aren't defined, and will remove imports that point purely to ".d.ts" files (you don't need to create [peer JS](https://whistlr.info/2021/check-js-with-ts/#import-your-types)).
+It fails gracefully in many ways, including  falling back to real paths if exports aren't defined.
+It will also remove imports that point purely to ".d.ts" files (you don't need to create [peer JS](https://whistlr.info/2021/check-js-with-ts/#import-your-types)).
 
-You can [set these options](./types/external.d.ts) via the second argument.
+You can [set these options](./types/external.d.ts) via the resolver's second argument.
