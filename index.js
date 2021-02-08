@@ -316,13 +316,13 @@ class Resolver {
 
 
 /**
- * @param {string} importerDir
+ * @param {string} importer
  * @param {Partial<types.ResolverOptions>=} options
  * @return {(importee: string) => string|undefined}
  */
-export default function buildResolver(importerDir, options) {
+export default function buildResolver(importer, options) {
   let handler = (importee) => {
-    const r = new Resolver(importerDir, options);
+    const r = new Resolver(importer, options);
     handler = r.resolve.bind(r);
     return handler(importee);
   };

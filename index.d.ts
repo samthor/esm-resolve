@@ -17,7 +17,6 @@
 export * from './types/external.js';
 
 /**
- * Builds a resolver for files in the specified directory (which may be relative and is resolved
- * relative to the current working directory).
+ * Builds an import resolver for the given importer file.
  */
-export default function buildResolver(importerDir: string, options?: Partial<types.ResolverOptions>): (importer: string) => string|undefined;
+export default function buildResolver(importer: string, options?: Partial<types.ResolverOptions>): (importer: string) => string|undefined;
