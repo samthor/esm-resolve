@@ -76,4 +76,5 @@ test('resolves internal exports', t => {
 
 test('resolves @user imports', t => {
   t.is(r('@user/thing'), './node_modules/@user/thing/test.js');
+  t.is(r('@user'), undefined, 'user import should not trigger as it creates ambiguities');
 });
