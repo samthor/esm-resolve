@@ -73,3 +73,7 @@ test('resolves internal exports', t => {
   t.is(r('#other/package.json'), undefined, 'doesn\'t fall through, longer string not in imports');
   t.is(r('#other-any/package.json'), './node_modules/exports-package/package.json', 'falls through due to /*');
 });
+
+test('resolves @user imports', t => {
+  t.is(r('@user/thing'), './node_modules/@user/thing/test.js');
+});
