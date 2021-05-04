@@ -16,7 +16,9 @@
 
 export * from './types/external.js';
 
+import {ResolverOptions} from './types/index.js';
+
 /**
  * Builds an import resolver for the given importer file.
  */
-export default function buildResolver(importer: string, options?: Partial<types.ResolverOptions>): (importer: string) => string|undefined;
+export default function buildResolver(importer: string, options?: Partial<ResolverOptions>): (importer: string) => string|undefined;

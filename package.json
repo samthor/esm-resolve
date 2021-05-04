@@ -1,6 +1,6 @@
 {
   "name": "esm-resolve",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Resolves ESM imports in JS",
   "main": "index.js",
   "exports": {

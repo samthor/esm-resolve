@@ -62,6 +62,8 @@ export interface ResolverOptions {
   /**
    * If legacy resolution is being performed (i.e., no `exports` field), should this resolve a
    * main field even if the package type is not "module". Defaults to true.
+   *
+   * @default true
    */
   includeMainFallback: boolean,
 
