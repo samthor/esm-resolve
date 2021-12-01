@@ -13,16 +13,16 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
- 
+
 import test from 'ava';
 import * as fs from 'fs';
 
 import buildResolver from '../index.js';
 
 const r = buildResolver('./testdata/fake.js');
-const nodeResolver = buildResolver('./testdata/fake.js', {constraints: ['node']});
+const nodeResolver = buildResolver('./testdata/fake.js', { constraints: ['node'] });
 
-const {pathname: packageJSONPath} = new URL('../testdata/package.json', import.meta.url);
+const { pathname: packageJSONPath } = new URL('../testdata/package.json', import.meta.url);
 /** @type {string} */
 const fakePackageName = JSON.parse(fs.readFileSync(packageJSONPath, 'utf-8')).name;
 
@@ -77,4 +77,8 @@ test('resolves internal exports', t => {
 test('resolves @user imports', t => {
   t.is(r('@user/thing'), './node_modules/@user/thing/test.js');
   t.is(r('@user'), undefined, 'user import should not trigger as it creates ambiguities');
+});
+
+test('supports nested "bad" packages', t => {
+  t.is(r('bad-package/subpackage'), './node_modules/bad-package/subpackage/sub-bad-index.js');
 });

@@ -75,4 +75,13 @@ export interface ResolverOptions {
    */
   matchNakedMjs: boolean,
 
+  /**
+   * If we can't find a match in "node_modules/package" (or under "node_modules/@user/package"),
+   * then see if there's a nested package. These aren't allowed by Node, but actually show up a
+   * bit in the wild.
+   *
+   * @default true
+   */
+  checkNestedPackages: boolean,
+
 }

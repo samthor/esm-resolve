@@ -18,9 +18,9 @@
 import * as types from './types/index.js';
 import * as path from 'path';
 import * as fs from 'fs';
-import {statIsFile, statOrNull, isLocal, splitImport} from './lib/helper.js';
-import {createRequire} from 'module';
-import {matchModuleNode} from './lib/node.js';
+import { statIsFile, statOrNull, isLocal } from './lib/helper.js';
+import { createRequire } from 'module';
+import { matchModuleNode } from './lib/node.js';
 
 
 
@@ -32,6 +32,7 @@ const defaults = {
   allowExportFallback: true,
   matchNakedMjs: false,
   includeMainFallback: true,
+  checkNestedPackages: true,
 };
 
 
@@ -86,12 +87,12 @@ class Resolver {
   }
 
   /**
-   * @return {{resolved?: string, info?: types.InternalPackageJson}}
+   * @return {{resolved: string, info: types.InternalPackageJson} | undefined}
    */
   loadSelfPackage() {
     const candidatePath = this.#require.resolve.paths('.')?.[0];
     if (candidatePath === undefined) {
-      return {};
+      return;
     }
 
     let info;
@@ -99,25 +100,25 @@ class Resolver {
       const selfPackagePath = path.join(candidatePath, 'package.json');
       info = JSON.parse(fs.readFileSync(selfPackagePath, 'utf-8'));
     } catch (e) {
-      return {};
+      return;
     }
-    return {info, resolved: candidatePath};
+    return { info, resolved: candidatePath };
   }
 
   /**
    * @param {string} name
-   * @return {{resolved?: string, info?: types.InternalPackageJson}}
+   * @return {{resolved: string, info: types.InternalPackageJson} | undefined}
    */
   loadPackage(name) {
     const candidatePaths = this.#require.resolve.paths(name);
     if (!candidatePaths?.length) {
-      return {};
+      return;
     }
 
     // If we literally are the named import, match it first.
     const self = this.loadSelfPackage();
-    if (self.info?.['name'] === name) {
-      return {resolved: self.resolved, info: self.info};
+    if (self?.info['name'] === name) {
+      return { resolved: self.resolved, info: self.info };
     }
 
     let packagePath;
@@ -129,11 +130,11 @@ class Resolver {
       }
     }
     if (!packagePath) {
-      return {};
+      return;
     }
 
     const info = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
-    return {resolved: path.dirname(packagePath), info};
+    return { resolved: path.dirname(packagePath), info };
   }
 
   /**
@@ -197,7 +198,7 @@ class Resolver {
     // through to the external import process if required.
     if (importee.startsWith('#')) {
       const self = this.loadSelfPackage();
-      if (!self.info || !self.resolved) {
+      if (!self) {
         return;
       }
 
@@ -212,56 +213,68 @@ class Resolver {
       importee = matched;
     }
 
-    const {name, rest} = splitImport(importee);
-    if (!name) {
-      return;
-    }
+    const pathComponents = importee.split('/');
+    let index = (pathComponents[0].startsWith('@') ? 2 : 1);
 
-    const {resolved, info} = this.loadPackage(name);
-    if (!resolved || !info) {
-      return;
-    }
+    /** @type {string=} */
+    let fallbackBest = undefined;
 
-    // If we find exports, then use a modern resolution mechanism.
-    if (info.exports) {
-      const matched = matchModuleNode(info.exports, rest, this.#options.constraints);
-      if (matched) {
-        if (!isLocal(matched)) {
-          // This module is trying to export something that is not part of its own package.
-          // This isn't allowed although perhaps we should let it happen.
+    // This loop only exists to check "bad" nested paths.
+    do {
+      const name = pathComponents.slice(0, index).join('/');
+      const rest = ['.', ...pathComponents.slice(index)].join('/');
+
+      const pkg = this.loadPackage(name);
+      console.warn('got', name, pkg, { rest });
+      if (!pkg) {
+        continue;
+      }
+
+      // Match exports.
+      if (pkg.info.exports) {
+        const matched = matchModuleNode(pkg.info.exports, rest, this.#options.constraints);
+        if (matched && isLocal(matched)) {
+          return `file://${path.join(pkg.resolved, matched)}`;
+        }
+        // This module could be trying to export something that is not part of its own package.
+        // This isn't allowed although perhaps we should let it happen.
+
+        if (!this.#options.allowExportFallback) {
           return;
         }
-        return `file://${path.join(resolved, matched)}`;
       }
 
-      if (!this.#options.allowExportFallback) {
-        return;
-      }
-      // If we couldn't find a node, then fallback to running the legacy resolution algorithm. This
-      // is agaist Node's rules: if an exports field is found, it's all that should be used.
-    }
-
-    // Check a few legacy options and fall back to allowing any path within the package.
-    let simple = rest;
-    if (simple === '.') {
-      let found = false;
-      for (const key of modulePackageNames) {
-        if (typeof info[key] === 'string') {
-          simple = /** @type {string} */ (info[key]);
-          found = true;
-          break;
+      // Check a few legacy options.
+      let simple = rest;
+      if (simple === '.') {
+        let found = false;
+        for (const key of modulePackageNames) {
+          if (typeof pkg.info[key] === 'string') {
+            simple = /** @type {string} */ (pkg.info[key]);
+            found = true;
+            break;
+          }
         }
+
+        // If we can't find a name which implies a module import, optionally fall back to 'main' even
+        // if the type of the package isn't correct.
+        if (!found &&
+          (this.#options.includeMainFallback || pkg.info['type'] === 'module') &&
+          typeof pkg.info['main'] === 'string') {
+          simple = pkg.info['main'];
+        }
+
+        return `file://${path.join(pkg.resolved, simple)}`;
       }
 
-      // If we can't find a name which implies a module import, optionally fall back to 'main' even
-      // if the type of the package isn't correct.
-      if (!found &&
-          (this.#options.includeMainFallback || info['type'] === 'module') &&
-          typeof info['main'] === 'string') {
-        simple = info['main'];
+      // Otherwise, choose the best (if we're the 1st pass) based on the guessed filename.
+      if (!fallbackBest) {
+        fallbackBest = `file://${path.join(pkg.resolved, rest)}`;
       }
-    }
-    return `file://${path.join(resolved, simple)}`;
+
+    } while (this.#options.checkNestedPackages && ++index <= pathComponents.length);
+
+    return fallbackBest;
   }
 
   /**
@@ -272,7 +285,7 @@ class Resolver {
     try {
       new URL(importee);
       return; // ignore, is valid URL
-    } catch {}
+    } catch { }
 
     /** @type {URL} */
     let url;
@@ -287,7 +300,7 @@ class Resolver {
       url = new URL(importee, this.#importerDir);
     }
 
-    let {pathname} = url;
+    let { pathname } = url;
     const suffix = url.search + url.hash;
 
     // Confirm the path actually exists (with extra node things).
@@ -304,7 +317,7 @@ class Resolver {
     } catch (e) {
       // ignore
     }
-  
+
     // Find the relative path from the request.
     let out = path.relative(this.#importerDir.pathname, pathname);
     if (!relativeRegexp.test(out)) {
