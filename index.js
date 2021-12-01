@@ -225,7 +225,6 @@ class Resolver {
       const rest = ['.', ...pathComponents.slice(index)].join('/');
 
       const pkg = this.loadPackage(name);
-      console.warn('got', name, pkg, { rest });
       if (!pkg) {
         continue;
       }

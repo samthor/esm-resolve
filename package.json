@@ -12,7 +12,7 @@
   "type": "module",
   "scripts": {
     "test": "ava",
-    "prepublishOnly": "rollup -o bundle.cjs -f cjs index.js"
+    "prepublishOnly": "rollup -o bundle.cjs -f cjs index.js --output.exports=named"
   },
   "author": "Sam Thorogood <sam.thorogood@gmail.com>",
   "repository": "git@github.com:samthor/esm-resolve.git",
