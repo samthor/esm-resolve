@@ -1,6 +1,6 @@
 {
   "name": "esm-resolve",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Resolves ESM imports in JS",
   "main": "index.js",
   "exports": {
@@ -12,7 +12,7 @@
   "type": "module",
   "scripts": {
     "test": "ava",
-    "prepublishOnly": "rollup -o bundle.cjs -f cjs index.js --output.exports=named"
+    "prepublishOnly": "esbuild index.js --bundle --platform=node --target=es2015 --outfile=bundle.cjs"
   },
   "author": "Sam Thorogood <sam.thorogood@gmail.com>",
   "repository": "git@github.com:samthor/esm-resolve.git",
@@ -20,7 +20,7 @@
   "devDependencies": {
     "@types/node": "^14.14.25",
     "ava": "^3.15.0",
-    "rollup": "^2.60.2"
+    "esbuild": "^0.14.1"
   },
   "types": "index.d.ts"
 }
