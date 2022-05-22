@@ -20,6 +20,7 @@ import * as fs from 'fs';
 import buildResolver from '../index.js';
 
 const r = buildResolver('./testdata/fake.js');
+const deepResolver = buildResolver('./testdata/deep/fake.js');
 const nodeResolver = buildResolver('./testdata/fake.js', { constraints: ['node'] });
 
 const { pathname: packageJSONPath } = new URL('../testdata/package.json', import.meta.url);
@@ -64,6 +65,7 @@ test('hides .d.ts only', t => {
 test('resolves self-package', t => {
   t.is(r(fakePackageName), './blah/file.js');
   t.is(r(`${fakePackageName}/package.json`), './package.json');
+  t.is(deepResolver(fakePackageName), '../blah/file.js');
 });
 
 test('resolves internal exports', t => {
@@ -72,6 +74,9 @@ test('resolves internal exports', t => {
   t.is(r('#other'), './node_modules/exports-package/node.js#browser');
   t.is(r('#other/package.json'), undefined, 'doesn\'t fall through, longer string not in imports');
   t.is(r('#other-any/package.json'), './node_modules/exports-package/package.json', 'falls through due to /*');
+  t.is(deepResolver('#self'), '../blah/file.js');
+  t.is(deepResolver('#secret'), '../blah/file.js#secret');
+  t.is(deepResolver('#other'), '../node_modules/exports-package/node.js#browser');
 });
 
 test('resolves @user imports', t => {

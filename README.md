@@ -23,9 +23,9 @@ Resolution logic is actually the same for any files in the same directory, so re
 ## Notes
 
 This implements modern Node resolution, i.e., [subpath exports](https://nodejs.org/api/packages.html#packages_subpath_exports) and [conditional exports](https://nodejs.org/api/packages.html#packages_conditional_exports).
-By default, it will rewrite to the "browser", "import" or "default" keys (not "node", as this is for your browser).
+By default, it will rewrite to the "browser", "import" or "default" keys (not "node", as it's expected that you'll use this for browser builds).
 
-It fails gracefully in many ways, including  falling back to real paths if exports aren't defined.
+It fails gracefully in many ways, including falling back to real paths if exports aren't defined.
 It will also remove imports that point purely to ".d.ts" files (you don't need to create [peer JS](https://whistlr.info/2021/check-js-with-ts/#import-your-types)).
 
-You can [set these options](./types/external.d.ts) via the resolver's second argument.
+You can [configure all these options](./types/external.d.ts) via the resolver's second argument.

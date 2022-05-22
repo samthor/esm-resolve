@@ -20,7 +20,7 @@ export interface ResolverOptions {
   /**
    * The list of constraints to search for inside a package's exports/imports fields. If
    * unspecified, this defaults to ["browser"]. The "imports" key will always be included, and if
-   * no constraint matches, the "default" key will always be followed.
+   * no constraint matches, the "default" key will be followed.
    *
    * @default ["browser"]
    */

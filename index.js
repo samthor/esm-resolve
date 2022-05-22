@@ -80,6 +80,7 @@ class Resolver {
   constructor(importer, options) {
     this.#options = Object.assign({}, defaults, options);
 
+    // Importers are actually the same for every file in a directory. Remove the last part.
     const importerDir = path.join(path.resolve(importer), '..', path.sep);
 
     this.#importerDir = new URL(`file://${importerDir}`);
@@ -90,19 +91,26 @@ class Resolver {
    * @return {{resolved: string, info: types.InternalPackageJson} | undefined}
    */
   loadSelfPackage() {
-    const candidatePath = this.#require.resolve.paths('.')?.[0];
+    let candidatePath = this.#require.resolve.paths('.')?.[0];
     if (candidatePath === undefined) {
       return;
     }
 
-    let info;
-    try {
+    for (;;) {
       const selfPackagePath = path.join(candidatePath, 'package.json');
-      info = JSON.parse(fs.readFileSync(selfPackagePath, 'utf-8'));
-    } catch (e) {
-      return;
+      try {
+        const info = JSON.parse(fs.readFileSync(selfPackagePath, 'utf-8'));
+        return { info, resolved: candidatePath };
+      } catch (e) {
+        // ignore
+      }
+
+      const next = path.dirname(candidatePath);
+      if (next === candidatePath) {
+        return;
+      }
+      candidatePath = next;
     }
-    return { info, resolved: candidatePath };
   }
 
   /**
@@ -277,6 +285,8 @@ class Resolver {
   }
 
   /**
+   * This is public-visible API of this helper class.
+   *
    * @param {string} importee
    * @return {string=}
    */

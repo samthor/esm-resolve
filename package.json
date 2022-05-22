@@ -1,12 +1,14 @@
 {
   "name": "esm-resolve",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Resolves ESM imports in JS",
   "main": "index.js",
   "exports": {
     ".": {
-      "import": "./index.js",
-      "require": "./bundle.cjs"
+      "node": {
+        "import": "./index.js",
+        "require": "./bundle.cjs"
+      }
     }
   },
   "type": "module",
