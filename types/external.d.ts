@@ -24,7 +24,7 @@ export interface ResolverOptions {
    *
    * @default ["browser"]
    */
-  constraints: string[],
+  constraints: string[] | string,
 
   /**
    * Whether to allow resolved files that don't exist on disk. Normally these will not resolve.
@@ -68,8 +68,8 @@ export interface ResolverOptions {
   includeMainFallback: boolean,
 
   /**
-   * Whether to search for a match suffixed with '.mjs' when a naked resolution is found. Defaults
-   * to false.
+   * Whether to search for a match suffixed with '.mjs' when a naked resolution is found, without
+   * a suffix. Defaults to false: normally, we just match '.js' files.
    *
    * @default false
    */

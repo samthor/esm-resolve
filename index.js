@@ -73,12 +73,17 @@ class Resolver {
   /** @type {types.ResolverOptions} */
   #options;
 
+  // This is always an array, but the arg might not be.
+  /** @type {string[]} */
+  #constraints;
+
   /**
    * @param {string} importer
    * @param {Partial<types.ResolverOptions>=} options
    */
   constructor(importer, options) {
     this.#options = Object.assign({}, defaults, options);
+    this.#constraints = [this.#options.constraints].flat();
 
     // Importers are actually the same for every file in a directory. Remove the last part.
     const importerDir = path.join(path.resolve(importer), '..', path.sep);
@@ -210,7 +215,7 @@ class Resolver {
         return;
       }
 
-      const matched = matchModuleNode(self.info.imports ?? {}, importee, this.#options.constraints);
+      const matched = matchModuleNode(self.info.imports ?? {}, importee, this.#constraints);
       if (!matched) {
         return;
       } else if (isLocal(matched)) {
@@ -239,7 +244,7 @@ class Resolver {
 
       // Match exports.
       if (pkg.info.exports) {
-        const matched = matchModuleNode(pkg.info.exports, rest, this.#options.constraints);
+        const matched = matchModuleNode(pkg.info.exports, rest, this.#constraints);
         if (matched && isLocal(matched)) {
           return `file://${path.join(pkg.resolved, matched)}`;
         }

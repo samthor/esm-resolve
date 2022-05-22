@@ -87,3 +87,9 @@ test('resolves @user imports', t => {
 test('supports nested "bad" packages', t => {
   t.is(r('bad-package/subpackage'), './node_modules/bad-package/subpackage/sub-bad-index.js');
 });
+
+test('resolves peer imports', t => {
+  const mjsResolver = buildResolver('./testdata/fake.js', { matchNakedMjs: true });
+  t.is(mjsResolver('./only-mjs'), './only-mjs.mjs');
+  t.is(r('./optional-mjs'), './optional-mjs.js', 'prefer JS over MJS');
+});
