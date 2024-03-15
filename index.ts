@@ -52,27 +52,27 @@ const zeroJsDefinitionsImport = 'data:text/javascript;charset=utf-8,/* was .d.ts
 const modulePackageNames = ['module', 'esnext:main', 'esnext', 'jsnext:main', 'jsnext'];
 
 class Resolver {
-  #importerDir;
-  #require;
+  private importerDir: URL;
+  private require: NodeRequire;
 
-  #options: types.ResolverOptions;
+  private options: types.ResolverOptions;
 
   // This is always an array, but the arg might not be.
-  #constraints: string[];
+  private constraints: string[];
 
   constructor(importer: string, options?: Partial<types.ResolverOptions>) {
-    this.#options = Object.assign({}, defaults, options);
-    this.#constraints = [this.#options.constraints].flat();
+    this.options = Object.assign({}, defaults, options);
+    this.constraints = [this.options.constraints].flat();
 
     // Importers are actually the same for every file in a directory. Remove the last part.
     const importerDir = path.join(path.resolve(importer), '..', path.sep);
 
-    this.#importerDir = new URL(`file://${importerDir}`);
-    this.#require = createRequire(importerDir);
+    this.importerDir = new URL(`file://${importerDir}`);
+    this.require = createRequire(importerDir);
   }
 
   loadSelfPackage(): { resolved: string; info: types.InternalPackageJson } | undefined {
-    let candidatePath = this.#require.resolve.paths('.')?.[0];
+    let candidatePath = this.require.resolve.paths('.')?.[0];
     if (candidatePath === undefined) {
       return;
     }
@@ -95,7 +95,7 @@ class Resolver {
   }
 
   loadPackage(name: string): { resolved: string; info: types.InternalPackageJson } | undefined {
-    const candidatePaths = this.#require.resolve.paths(name);
+    const candidatePaths = this.require.resolve.paths(name);
     if (!candidatePaths?.length) {
       return;
     }
@@ -128,7 +128,7 @@ class Resolver {
       return pathname;
     }
 
-    const extToCheck = this.#options.matchNakedMjs ? ['.js', '.mjs'] : ['.js'];
+    const extToCheck = this.options.matchNakedMjs ? ['.js', '.mjs'] : ['.js'];
 
     if (stat === null) {
       // Look for a file with a suffix.
@@ -139,7 +139,7 @@ class Resolver {
         }
       }
 
-      if (this.#options.rewritePeerTypes) {
+      if (this.options.rewritePeerTypes) {
         // Special-case .d.ts files when there's no better option... because TypeScript.
         //   - importing a naked or '.js' file allows the adjacent '.d.ts'
         //   - this file doesn't really exist, so return a zero import
@@ -160,7 +160,7 @@ class Resolver {
       }
 
       // Look for a solo index.d.ts in the directory, which TypeScript allows.
-      if (this.#options.rewritePeerTypes && statIsFile(path.join(pathname, 'index.d.ts'))) {
+      if (this.options.rewritePeerTypes && statIsFile(path.join(pathname, 'index.d.ts'))) {
         return zeroJsDefinitionsImport;
       }
     }
@@ -177,7 +177,7 @@ class Resolver {
         return;
       }
 
-      const matched = matchModuleNode(self.info.imports ?? {}, importee, this.#constraints);
+      const matched = matchModuleNode(self.info.imports ?? {}, importee, this.constraints);
       if (!matched) {
         return;
       } else if (isLocal(matched)) {
@@ -205,14 +205,14 @@ class Resolver {
 
       // Match exports.
       if (pkg.info.exports) {
-        const matched = matchModuleNode(pkg.info.exports, rest, this.#constraints);
+        const matched = matchModuleNode(pkg.info.exports, rest, this.constraints);
         if (matched && isLocal(matched)) {
           return `file://${path.join(pkg.resolved, matched)}`;
         }
         // This module could be trying to export something that is not part of its own package.
         // This isn't allowed although perhaps we should let it happen.
 
-        if (!this.#options.allowExportFallback) {
+        if (!this.options.allowExportFallback) {
           return;
         }
       }
@@ -234,7 +234,7 @@ class Resolver {
         // if the type of the package isn't correct.
         if (
           !found &&
-          (this.#options.includeMainFallback || pkg.info['type'] === 'module') &&
+          (this.options.includeMainFallback || pkg.info['type'] === 'module') &&
           typeof pkg.info['main'] === 'string'
         ) {
           simple = pkg.info['main'];
@@ -247,7 +247,7 @@ class Resolver {
       if (!fallbackBest) {
         fallbackBest = `file://${path.join(pkg.resolved, rest)}`;
       }
-    } while (this.#options.checkNestedPackages && ++index <= pathComponents.length);
+    } while (this.options.checkNestedPackages && ++index <= pathComponents.length);
 
     return fallbackBest;
   }
@@ -270,7 +270,7 @@ class Resolver {
         throw new Error(`expected file:, was: ${url.toString()}`);
       }
     } else {
-      url = new URL(importee, this.#importerDir);
+      url = new URL(importee, this.importerDir);
     }
 
     let { pathname } = url;
@@ -280,7 +280,7 @@ class Resolver {
     const confirmed = this.confirmPath(pathname);
     if (confirmed !== undefined) {
       pathname = confirmed;
-    } else if (!this.#options.allowMissing) {
+    } else if (!this.options.allowMissing) {
       return;
     }
     try {
@@ -292,7 +292,7 @@ class Resolver {
     }
 
     // Find the relative path from the request.
-    let out = path.relative(this.#importerDir.pathname, pathname);
+    let out = path.relative(this.importerDir.pathname, pathname);
     if (!relativeRegexp.test(out)) {
       out = `./${out}`; // don't allow naked pathname
     }
