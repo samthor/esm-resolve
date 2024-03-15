@@ -300,7 +300,7 @@ class Resolver {
   }
 }
 
-export default function buildResolver(
+export function buildResolver(
   importer: string,
   options?: Partial<types.ResolverOptions>,
 ): (importee: string) => string | undefined {
@@ -311,3 +311,5 @@ export default function buildResolver(
   };
   return (importee) => handler(importee);
 }
+
+export { buildResolver as default };
