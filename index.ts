@@ -14,7 +14,6 @@
  * the License.
  */
 
-
 import * as types from './types/index.js';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -22,10 +21,7 @@ import { statIsFile, statOrNull, isLocal } from './lib/helper.js';
 import { createRequire } from 'module';
 import { matchModuleNode } from './lib/node.js';
 
-
-
-/** @type {types.ResolverOptions} */
-const defaults = {
+const defaults: types.ResolverOptions = {
   constraints: ['browser'],
   allowMissing: false,
   rewritePeerTypes: true,
@@ -35,53 +31,36 @@ const defaults = {
   checkNestedPackages: true,
 };
 
-
 /**
  * Regexp that matches "../", "./" or "/" as a prefix.
  */
 const relativeRegexp = /^\.{0,2}\//;
-
 
 /**
  * Regexp that matches ".js" as a suffix.
  */
 const matchJsSuffixRegexp = /\.js$/;
 
-
 /**
  * Zero JS "file" that evaluates correctly.
  */
 const zeroJsDefinitionsImport = 'data:text/javascript;charset=utf-8,/* was .d.ts only */';
 
-
 /**
  * Search these fields for a potential legacy main module if a top-level package is imported.
  */
-const modulePackageNames = [
-  'module',
-  'esnext:main',
-  'esnext',
-  'jsnext:main',
-  'jsnext',
-];
-
+const modulePackageNames = ['module', 'esnext:main', 'esnext', 'jsnext:main', 'jsnext'];
 
 class Resolver {
   #importerDir;
   #require;
 
-  /** @type {types.ResolverOptions} */
-  #options;
+  #options: types.ResolverOptions;
 
   // This is always an array, but the arg might not be.
-  /** @type {string[]} */
-  #constraints;
+  #constraints: string[];
 
-  /**
-   * @param {string} importer
-   * @param {Partial<types.ResolverOptions>=} options
-   */
-  constructor(importer, options) {
+  constructor(importer: string, options?: Partial<types.ResolverOptions>) {
     this.#options = Object.assign({}, defaults, options);
     this.#constraints = [this.#options.constraints].flat();
 
@@ -92,10 +71,7 @@ class Resolver {
     this.#require = createRequire(importerDir);
   }
 
-  /**
-   * @return {{resolved: string, info: types.InternalPackageJson} | undefined}
-   */
-  loadSelfPackage() {
+  loadSelfPackage(): { resolved: string; info: types.InternalPackageJson } | undefined {
     let candidatePath = this.#require.resolve.paths('.')?.[0];
     if (candidatePath === undefined) {
       return;
@@ -118,11 +94,7 @@ class Resolver {
     }
   }
 
-  /**
-   * @param {string} name
-   * @return {{resolved: string, info: types.InternalPackageJson} | undefined}
-   */
-  loadPackage(name) {
+  loadPackage(name: string): { resolved: string; info: types.InternalPackageJson } | undefined {
     const candidatePaths = this.#require.resolve.paths(name);
     if (!candidatePaths?.length) {
       return;
@@ -150,11 +122,7 @@ class Resolver {
     return { resolved: path.dirname(packagePath), info };
   }
 
-  /**
-   * @param {string} pathname
-   * @return {string=}
-   */
-  confirmPath(pathname) {
+  confirmPath(pathname: string): string | undefined {
     const stat = statOrNull(pathname);
     if (stat && !stat.isDirectory()) {
       return pathname;
@@ -182,7 +150,6 @@ class Resolver {
           }
         }
       }
-
     } else if (stat.isDirectory()) {
       // Look for index.js in the directory.
       for (const ext of extToCheck) {
@@ -196,15 +163,10 @@ class Resolver {
       if (this.#options.rewritePeerTypes && statIsFile(path.join(pathname, 'index.d.ts'))) {
         return zeroJsDefinitionsImport;
       }
-
     }
   }
 
-  /**
-   * @param {string} importee relative or naked string
-   * @return {string|void}
-   */
-  nodeResolve(importee) {
+  nodeResolve(importee: string): string | undefined {
     // Try to match subpath imports first. See Node's documentation:
     //   https://nodejs.org/api/packages.html#packages_subpath_imports
     // This allows local file resolution or picking another module, so check it first and fall
@@ -227,10 +189,9 @@ class Resolver {
     }
 
     const pathComponents = importee.split('/');
-    let index = (pathComponents[0].startsWith('@') ? 2 : 1);
+    let index = pathComponents[0].startsWith('@') ? 2 : 1;
 
-    /** @type {string=} */
-    let fallbackBest = undefined;
+    let fallbackBest: string | undefined = undefined;
 
     // This loop only exists to check "bad" nested paths.
     do {
@@ -261,8 +222,9 @@ class Resolver {
       if (simple === '.') {
         let found = false;
         for (const key of modulePackageNames) {
-          if (typeof pkg.info[key] === 'string') {
-            simple = /** @type {string} */ (pkg.info[key]);
+          const cand = pkg.info[key];
+          if (typeof cand === 'string') {
+            simple = cand;
             found = true;
             break;
           }
@@ -270,9 +232,11 @@ class Resolver {
 
         // If we can't find a name which implies a module import, optionally fall back to 'main' even
         // if the type of the package isn't correct.
-        if (!found &&
+        if (
+          !found &&
           (this.#options.includeMainFallback || pkg.info['type'] === 'module') &&
-          typeof pkg.info['main'] === 'string') {
+          typeof pkg.info['main'] === 'string'
+        ) {
           simple = pkg.info['main'];
         }
 
@@ -283,7 +247,6 @@ class Resolver {
       if (!fallbackBest) {
         fallbackBest = `file://${path.join(pkg.resolved, rest)}`;
       }
-
     } while (this.#options.checkNestedPackages && ++index <= pathComponents.length);
 
     return fallbackBest;
@@ -291,18 +254,14 @@ class Resolver {
 
   /**
    * This is public-visible API of this helper class.
-   *
-   * @param {string} importee
-   * @return {string=}
    */
-  resolve(importee) {
+  resolve(importee: string): string | undefined {
     try {
       new URL(importee);
       return; // ignore, is valid URL
-    } catch { }
+    } catch {}
 
-    /** @type {URL} */
-    let url;
+    let url: URL;
     const resolved = this.nodeResolve(importee);
     if (resolved !== undefined) {
       // We get back file:// URLs, beacause Node doesn't care about our webserver.
@@ -335,20 +294,17 @@ class Resolver {
     // Find the relative path from the request.
     let out = path.relative(this.#importerDir.pathname, pathname);
     if (!relativeRegexp.test(out)) {
-      out = `./${out}`;  // don't allow naked pathname
+      out = `./${out}`; // don't allow naked pathname
     }
     return out + suffix;
   }
 }
 
-
-/**
- * @param {string} importer
- * @param {Partial<types.ResolverOptions>=} options
- * @return {(importee: string) => string|undefined}
- */
-export default function buildResolver(importer, options) {
-  let handler = (importee) => {
+export default function buildResolver(
+  importer: string,
+  options?: Partial<types.ResolverOptions>,
+): (importee: string) => string | undefined {
+  let handler = (importee: string): string | undefined => {
     const r = new Resolver(importer, options);
     handler = r.resolve.bind(r);
     return handler(importee);

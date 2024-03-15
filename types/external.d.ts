@@ -14,9 +14,7 @@
  * the License.
  */
 
-
 export interface ResolverOptions {
-
   /**
    * The list of constraints to search for inside a package's exports/imports fields. If
    * unspecified, this defaults to ["browser"]. The "imports" key will always be included, and if
@@ -24,7 +22,7 @@ export interface ResolverOptions {
    *
    * @default ["browser"]
    */
-  constraints: string[] | string,
+  constraints: string[] | string;
 
   /**
    * Whether to allow resolved files that don't exist on disk. Normally these will not resolve.
@@ -32,7 +30,7 @@ export interface ResolverOptions {
    *
    * @default false
    */
-  allowMissing: boolean,
+  allowMissing: boolean;
 
   /**
    * Whether to hide imports of ".d.ts" files which have no peer ".js" files. Defaults to true.
@@ -49,7 +47,7 @@ export interface ResolverOptions {
    *
    * @default true
    */
-  rewritePeerTypes: boolean,
+  rewritePeerTypes: boolean;
 
   /**
    * Whether to allow any path not found in a package.json's `exports` field to be returned as its
@@ -57,7 +55,7 @@ export interface ResolverOptions {
    *
    * @default true
    */
-  allowExportFallback: boolean,
+  allowExportFallback: boolean;
 
   /**
    * If legacy resolution is being performed (i.e., no `exports` field), should this resolve a
@@ -65,7 +63,7 @@ export interface ResolverOptions {
    *
    * @default true
    */
-  includeMainFallback: boolean,
+  includeMainFallback: boolean;
 
   /**
    * Whether to search for a match suffixed with '.mjs' when a naked resolution is found, without
@@ -73,7 +71,7 @@ export interface ResolverOptions {
    *
    * @default false
    */
-  matchNakedMjs: boolean,
+  matchNakedMjs: boolean;
 
   /**
    * If we can't find a match in "node_modules/package" (or under "node_modules/@user/package"),
@@ -82,6 +80,5 @@ export interface ResolverOptions {
    *
    * @default true
    */
-  checkNestedPackages: boolean,
-
+  checkNestedPackages: boolean;
 }

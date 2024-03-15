@@ -1,4 +1,4 @@
 node_modules
 _*
 .DS_Store
-bundle.cjs
+bundle.*

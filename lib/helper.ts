@@ -14,15 +14,9 @@
  * the License.
  */
 
-
 import * as fs from 'fs';
 
-
-/**
- * @param {string} p
- * @return {fs.Stats?}
- */
-export const statOrNull = (p) => {
+export const statOrNull = (p: string): fs.Stats | null => {
   try {
     return fs.statSync(p);
   } catch (e) {
@@ -30,16 +24,6 @@ export const statOrNull = (p) => {
   }
 };
 
+export const statIsFile = (p: string): boolean => statOrNull(p)?.isFile() ?? false;
 
-/**
- * @param {string} p
- * @return {boolean}
- */
-export const statIsFile = (p) => statOrNull(p)?.isFile() ?? false;
-
-
-/**
- * @param {string} p
- * @return {boolean}
- */
-export const isLocal = (p) => p === '.' || p.startsWith('./');
+export const isLocal = (p: string): boolean => p === '.' || p.startsWith('./');

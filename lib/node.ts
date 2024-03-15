@@ -14,22 +14,20 @@
  * the License.
  */
 
-
 import * as types from '../types/index.js';
 import * as path from 'path';
 import { isLocal } from './helper.js';
 
-
 // TODO(samthor): This includes 'module' to work around a problem in a certain popular JS library.
 const alwaysConstraints = ['module', 'import'];
 
-
-/**
- * @param {types.InternalPackageModuleNode} exports
- * @param {string} rest
- * @return {{node?: types.InternalPackageModuleNode, subpath?: string}}
- */
-function matchModuleNodePath(exports, rest) {
+function matchModuleNodePath(
+  exports: types.InternalPackageModuleNode,
+  rest: string,
+): {
+  node?: types.InternalPackageModuleNode;
+  subpath?: string;
+} {
   if (typeof exports !== 'object') {
     return { node: exports };
   }
@@ -37,7 +35,7 @@ function matchModuleNodePath(exports, rest) {
 
   for (const key in exports) {
     if (!key.startsWith('#') && !isLocal(key)) {
-      fallback = exports;  // it might be "import" and so on
+      fallback = exports; // it might be "import" and so on
       continue;
     }
     if (key === rest) {
@@ -48,13 +46,13 @@ function matchModuleNodePath(exports, rest) {
     if (!key.endsWith('/*')) {
       continue;
     }
-    const prefix = key.substr(0, key.length - 1);
+    const prefix = key.substring(0, key.length - 1);
     if (!(rest.startsWith(prefix) && rest.length > prefix.length)) {
       continue;
     }
-    const subpath = rest.substr(prefix.length);
+    const subpath = rest.substring(prefix.length);
     if (path.normalize(subpath) !== subpath) {
-      continue;  // node prevents conditional escaping path or having "."
+      continue; // node prevents conditional escaping path or having "."
     }
 
     return { node: exports[key], subpath };
@@ -66,13 +64,11 @@ function matchModuleNodePath(exports, rest) {
   return {};
 }
 
-
-/**
- * @param {types.InternalPackageModuleNode} exports
- * @param {string} rest
- * @param {string[]} constraints
- */
-export function matchModuleNode(exports, rest, constraints) {
+export function matchModuleNode(
+  exports: types.InternalPackageModuleNode,
+  rest: string,
+  constraints: string[],
+): string | void {
   let { node, subpath } = matchModuleNodePath(exports, rest);
 
   // Traverse looking for the best conditional. These can be nested.

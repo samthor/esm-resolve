@@ -19,21 +19,21 @@ export * from './external.js';
 /**
  * Internal node type for package.json' imports/exports.
  */
-export type InternalPackageModuleNode = {[name: string]: InternalPackageModuleNode} | string;
+export type InternalPackageModuleNode = { [name: string]: InternalPackageModuleNode } | string;
 
 /**
  * Internal top-level type approximating a package.json file.
  */
 export type InternalPackageJson = {
-  [name: string]: number | string | InternalPackageJson,
-  exports?: InternalPackageModuleNode,
-  imports?: InternalPackageModuleNode,
-  name?: string,
+  [name: string]: number | string | InternalPackageJson;
+  exports?: InternalPackageModuleNode;
+  imports?: InternalPackageModuleNode;
+  name?: string;
 };
 
 /**
  * Internal type of a general package.json node.
  */
 export type InternalPackageJsonNode = {
-  [name: string]: number | string | InternalPackageJsonNode,
+  [name: string]: number | string | InternalPackageJsonNode;
 };
