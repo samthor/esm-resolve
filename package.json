@@ -1,7 +1,7 @@
 {
   "name": "esm-resolve",
-  "version": "1.0.8",
-  "description": "Resolves ESM imports in JS",
+  "version": "1.0.9",
+  "description": "Resolves ESM imports in Node",
   "main": "bundle.js",
   "exports": {
     ".": {

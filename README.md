@@ -6,16 +6,17 @@ It also allows some cases which would otherwise be failures.
 
 ## Usage
 
-Install and import "esm-resolve" via your favourite package manager.
+Install and import "esm-resolve" via your favorite package manager.
 Create a resolver based on the importing file.
 
 ```js
 import buildResolver from 'esm-resolve';
+import { buildResolver } from 'esm-resolve'; // also works
 
 const r = buildResolver('./path/to/js/file.js');
 
-r('./relative');             // './relative.js'
-r('foo-test-package-name');  // './node_modules/foo-test-package-name/index.js'
+r('./relative'); // './relative.js'
+r('foo-test-package-name'); // './node_modules/foo-test-package-name/index.js'
 ```
 
 Resolution logic is actually the same for any files in the same directory, so resolver objects can be reused (and they have a small bit of cache).
@@ -38,8 +39,8 @@ const r = buildResolver('./path/to/js/file.js', {
 });
 
 // If there's a file "foo.mjs", this will now work:
-r('./foo');                  // './foo.mjs'
+r('./foo'); // './foo.mjs'
 
 // Or if we're importing package with a node constraint:
-r('node-only');              // './node-modules/node-only/build-for-node.js'
+r('node-only'); // './node-modules/node-only/build-for-node.js'
 ```
