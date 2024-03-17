@@ -1,8 +1,8 @@
 [![Tests](https://github.com/samthor/esm-resolve/workflows/Tests/badge.svg)](https://github.com/samthor/esm-resolve/actions)
 
-An ESM import resolver for Node written in pure JS.
+Sync ESM import resolver for Node written in pure JS.
 This is written to be part of an [ESM dev server](https://github.com/samthor/dhost) or build process, as Node's import process is impossible to introspect.
-It also allows some cases which would otherwise be failures.
+It is permissive by default, allowing some cases which would normally be failures.
 
 ## Usage
 
@@ -23,7 +23,7 @@ Resolution logic is actually the same for any files in the same directory, so re
 
 ## Notes
 
-This implements modern Node resolution, i.e., [subpath exports](https://nodejs.org/api/packages.html#packages_subpath_exports) and [conditional exports](https://nodejs.org/api/packages.html#packages_conditional_exports).
+This implements modern Node resolution, i.e., [subpath exports](https://nodejs.org/api/packages.html#packages_subpath_exports), [subpath imports](https://nodejs.org/api/packages.html#subpath-imports) and [conditional exports](https://nodejs.org/api/packages.html#packages_conditional_exports).
 By default, it will rewrite to the "browser", "import" or "default" keys (not "node", as it's expected that you'll use this for browser builds).
 
 It fails gracefully in many ways, including falling back to real paths if exports aren't defined.
