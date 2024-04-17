@@ -1,6 +1,6 @@
 .github/
 lib/
-*.ts
+index.ts # avoid hitting types
 test/*
 testdata/*
 tsconfig.json
