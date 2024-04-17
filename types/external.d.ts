@@ -17,14 +17,14 @@
 export interface ResolverOptions {
   /**
    * Is this resolver being created for a directory path, not a file path. Resolvers are the same
-   * per-directory.
+   * per-directory. Defaults to false.
    *
    * @default false
    */
   isDir: boolean;
 
   /**
-   * Provide absolute results rather than relative to the input dir.
+   * Provide absolute results rather than relative to the input dir. Defaults to false.
    *
    * @default false
    */
@@ -84,9 +84,26 @@ export interface ResolverOptions {
    * Whether to search for a match suffixed with '.mjs' when a naked resolution is found, without
    * a suffix. Defaults to false: normally, we just match '.js' files.
    *
+   * @deprecated use {@link ResolverOptions#allowImportingExtraExtensions} instead
    * @default false
    */
   matchNakedMjs: boolean;
+
+  /**
+   * Allows resolving files with '.ts', '.tsx', '.jsx' and friends: basically, be extra-permissive
+   * for a number of extensions that might be compiled out in the wild. Defaults to false.
+   *
+   * This will check both the passed path with the extension _added_, and then with the prior
+   * extension _replaced_. For example, "check.js" will look for "check.js.ts" and then "check.ts"
+   * (as well as all the other possible extension).
+   *
+   * You can also pass a specific array list of extra options. Note that exactly matched files will
+   * always work, e.g., importing "foo.baz" when that exists will simply resolve _that_, even
+   * though it may be nonsensical.
+   *
+   * @default false
+   */
+  allowImportingExtraExtensions: boolean | string[];
 
   /**
    * If we can't find a match in "node_modules/package" (or under "node_modules/@user/package"),

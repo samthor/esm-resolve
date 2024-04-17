@@ -4,7 +4,8 @@ Sync ESM import resolver for Node written in pure JS.
 This is written to be part of an [ESM dev server](https://github.com/samthor/dhost) or build process.
 It is permissive by default, allowing some cases which would normally be failures.
 
-⚠️ This resolver was writtem before [`import.meta.resolve()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta/resolve) was widely available, and this may work for you without adding _yet another_ dependency.
+⚠️ This resolver was writtem before [`import.meta.resolve()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta/resolve) was widely available&mdash;it may work for you without adding _yet another_ dependency.
+However, "esm-resolve" is a bit more permissive.
 
 ## Usage
 

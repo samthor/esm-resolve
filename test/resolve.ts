@@ -158,3 +158,12 @@ test('isDir', () => {
   assert.strictEqual(r2('./fake.js'), r3slash('./fake.js'));
   assert.notStrictEqual(r2('./fake.js'), r4bad('./fake.js'));
 });
+
+test('.ts resolve', () => {
+  assert.strictEqual(r('./only-has-ts'), undefined);
+  assert.strictEqual(r('./only-has-ts.ts'), './only-has-ts.ts');
+  assert.strictEqual(r('./only-has-ts.js'), undefined);
+
+  const r2 = buildResolver('./testdata/fake.js', { allowImportingExtraExtensions: true });
+  assert.strictEqual(r2('./only-has-ts.js'), './only-has-ts.ts');
+});

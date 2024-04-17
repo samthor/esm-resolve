@@ -29,6 +29,7 @@ const defaults: types.ResolverOptions = {
   rewritePeerTypes: true,
   allowExportFallback: true,
   matchNakedMjs: false,
+  allowImportingExtraExtensions: false,
   includeMainFallback: true,
   checkNestedPackages: true,
 };
@@ -135,7 +136,23 @@ class Resolver {
       return pathname;
     }
 
-    const extToCheck = this.options.matchNakedMjs ? ['.js', '.mjs'] : ['.js'];
+    const extToCheck = ['.js'];
+
+    if (this.options.matchNakedMjs) {
+      extToCheck.push('.mjs');
+    }
+
+    if (this.options.allowImportingExtraExtensions) {
+      if (Array.isArray(this.options.allowImportingExtraExtensions)) {
+        extToCheck.push(
+          ...this.options.allowImportingExtraExtensions.map((x) => {
+            return x.startsWith('.') ? x : '.' + x;
+          }),
+        );
+      } else {
+        extToCheck.push('.ts', '.tsx', '.jsx');
+      }
+    }
 
     if (stat === null) {
       // Look for a file with a suffix.
@@ -155,6 +172,16 @@ class Resolver {
           if (statIsFile(check)) {
             return zeroJsDefinitionsImport;
           }
+        }
+      }
+
+      // Look for a file with a suffix, without the prior extension.
+      const { name, dir } = path.parse(pathname);
+      const naked = path.join(dir, name);
+      for (const ext of extToCheck) {
+        const check = naked + ext;
+        if (statIsFile(check)) {
+          return check;
         }
       }
     } else if (stat.isDirectory()) {
