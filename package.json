@@ -1,13 +1,14 @@
 {
   "name": "esm-resolve",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Resolves ESM imports in Node",
   "main": "bundle.js",
   "exports": {
     ".": {
       "node": {
         "import": "./bundle.js",
-        "require": "./bundle.cjs"
+        "require": "./bundle.cjs",
+        "types": "./index.d.ts"
       }
     }
   },
@@ -20,9 +21,9 @@
   "repository": "git@github.com:samthor/esm-resolve.git",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/node": "^20.11.28",
-    "esbuild": "^0.14.1",
+    "@types/node": "^20.12.7",
+    "esbuild": "^0.14.54",
     "tsx": "^4.7.1"
   },
-  "types": "index.d.ts"
+  "types": "./index.d.ts"
 }

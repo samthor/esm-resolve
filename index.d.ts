@@ -14,9 +14,8 @@
  * the License.
  */
 
-export * from './types/external.js';
-
-import { ResolverOptions } from './types/index.js';
+import { ResolverOptions } from './types/external.js';
+export { ResolverOptions };
 
 // nb. default exports are hard; this exports as both `default` and `buildResolver`
 

@@ -15,7 +15,7 @@
  */
 
 import * as types from '../types/index.js';
-import * as path from 'path';
+import * as path from 'node:path';
 import { isLocal } from './helper.js';
 
 // TODO(samthor): This includes 'module' to work around a problem in a certain popular JS library.

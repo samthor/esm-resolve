@@ -16,6 +16,21 @@
 
 export interface ResolverOptions {
   /**
+   * Is this resolver being created for a directory path, not a file path. Resolvers are the same
+   * per-directory.
+   *
+   * @default false
+   */
+  isDir: boolean;
+
+  /**
+   * Provide absolute results rather than relative to the input dir.
+   *
+   * @default false
+   */
+  resolveToAbsolute: boolean;
+
+  /**
    * The list of constraints to search for inside a package's exports/imports fields. If
    * unspecified, this defaults to ["browser"]. The "imports" key will always be included, and if
    * no constraint matches, the "default" key will be followed.

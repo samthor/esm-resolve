@@ -1,4 +1,6 @@
 .github/
+lib/
+*.ts
 test/*
 testdata/*
 tsconfig.json

@@ -4,7 +4,7 @@ Sync ESM import resolver for Node written in pure JS.
 This is written to be part of an [ESM dev server](https://github.com/samthor/dhost) or build process.
 It is permissive by default, allowing some cases which would normally be failures.
 
-This resolver was writtem before [`import.meta.resolve()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta/resolve) was widely available, and this may work for you without adding _yet another_ dependency.
+⚠️ This resolver was writtem before [`import.meta.resolve()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta/resolve) was widely available, and this may work for you without adding _yet another_ dependency.
 
 ## Usage
 
@@ -15,13 +15,16 @@ Create a resolver based on the importing file.
 import buildResolver from 'esm-resolve';
 import { buildResolver } from 'esm-resolve'; // also works
 
-const r = buildResolver('./path/to/js/file.js');
+const r = buildResolver('./lib/file.js');
 
 r('./relative'); // './relative.js'
-r('foo-test-package-name'); // './node_modules/foo-test-package-name/index.js'
+r('foo-test-package-name'); // '../node_modules/foo-test-package-name/index.js'
 ```
 
 Resolution logic is actually the same for any files in the same directory, so resolver objects can be reused (and they have a small bit of cache).
+
+The resolved path is returned relative _to the importer_ of that file, not your process' current directory.
+You can set the `resolveToAbsolute` option if you'd always like an absolute path.
 
 ## Notes
 
@@ -35,7 +38,7 @@ You can [configure all these options](./types/external.d.ts) via the resolver's 
 
 ```js
 // Resolves for Node, and allows .mjs files.
-const r = buildResolver('./path/to/js/file.js', {
+const r = buildResolver('./lib/file.js', {
   constraints: 'node',
   matchNakedMjs: true,
 });
@@ -44,5 +47,5 @@ const r = buildResolver('./path/to/js/file.js', {
 r('./foo'); // './foo.mjs'
 
 // Or if we're importing package with a node constraint:
-r('node-only'); // './node-modules/node-only/build-for-node.js'
+r('node-only'); // '../node-modules/node-only/build-for-node.js'
 ```

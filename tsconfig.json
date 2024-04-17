@@ -13,6 +13,7 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
 
     // "strict" implies this, but you'll want to enable it when you're
     // ready: it's a huge reason your project will start complaining

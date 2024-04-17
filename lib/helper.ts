@@ -14,7 +14,7 @@
  * the License.
  */
 
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 export const statOrNull = (p: string): fs.Stats | null => {
   try {

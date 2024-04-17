@@ -16,7 +16,7 @@
 
 import test from 'node:test';
 import * as assert from 'node:assert';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import buildResolver from '../index.ts';
 
 const r = buildResolver('./testdata/fake.js');
@@ -24,8 +24,7 @@ const deepResolver = buildResolver('./testdata/deep/fake.js');
 const nodeResolver = buildResolver('./testdata/fake.js', { constraints: ['node'] });
 
 const { pathname: packageJSONPath } = new URL('../testdata/package.json', import.meta.url);
-/** @type {string} */
-const fakePackageName = JSON.parse(fs.readFileSync(packageJSONPath, 'utf-8')).name;
+const fakePackageName: string = JSON.parse(fs.readFileSync(packageJSONPath, 'utf-8')).name;
 
 test('resolves legacy import', (t) => {
   assert.strictEqual(
@@ -134,4 +133,28 @@ test('resolves peer imports', (t) => {
   const mjsResolver = buildResolver('./testdata/fake.js', { matchNakedMjs: true });
   assert.strictEqual(mjsResolver('./only-mjs'), './only-mjs.mjs');
   assert.strictEqual(r('./optional-mjs'), './optional-mjs.js', 'prefer JS over MJS');
+});
+
+test('isDir', () => {
+  const r1 = buildResolver('./testdata/fake.js', { allowMissing: true, resolveToAbsolute: true });
+  const r2 = buildResolver('./testdata', {
+    allowMissing: true,
+    resolveToAbsolute: true,
+    isDir: true,
+  });
+  const r3slash = buildResolver('./testdata/', {
+    allowMissing: true,
+    resolveToAbsolute: true,
+    isDir: true,
+  });
+  // "bad", will resolve in parent dir
+  const r4bad = buildResolver('./testdata', {
+    allowMissing: true,
+    resolveToAbsolute: true,
+    isDir: false,
+  });
+
+  assert.strictEqual(r1('./fake.js'), r2('./fake.js'));
+  assert.strictEqual(r2('./fake.js'), r3slash('./fake.js'));
+  assert.notStrictEqual(r2('./fake.js'), r4bad('./fake.js'));
 });

@@ -15,13 +15,15 @@
  */
 
 import * as types from './types/index.js';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { statIsFile, statOrNull, isLocal } from './lib/helper.js';
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 import { matchModuleNode } from './lib/node.js';
 
 const defaults: types.ResolverOptions = {
+  isDir: false,
+  resolveToAbsolute: false,
   constraints: ['browser'],
   allowMissing: false,
   rewritePeerTypes: true,
@@ -64,10 +66,15 @@ class Resolver {
     this.options = Object.assign({}, defaults, options);
     this.constraints = [this.options.constraints].flat();
 
+    importer = path.resolve(importer);
+
     // Importers are actually the same for every file in a directory. Remove the last part.
-    const importerDir = path.join(path.resolve(importer), '..', path.sep);
+    const importerDir = this.options.isDir
+      ? path.join(importer, '/')
+      : path.join(importer, '..', path.sep);
 
     this.importerDir = new URL(`file://${importerDir}`);
+
     this.require = createRequire(importerDir);
   }
 
@@ -292,6 +299,9 @@ class Resolver {
     }
 
     // Find the relative path from the request.
+    if (this.options.resolveToAbsolute) {
+      return pathname;
+    }
     let out = path.relative(this.importerDir.pathname, pathname);
     if (!relativeRegexp.test(out)) {
       out = `./${out}`; // don't allow naked pathname
